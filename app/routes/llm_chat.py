@@ -182,7 +182,10 @@ class GeminiProvider:
                 detail="Gemini API key not configured"
             )
         
-        url = f"{settings.GEMINI_URL}?key={settings.GEMINI_API_KEY}"
+        # ✅ SUCCESS: Using the working Lite model
+        MODEL_NAME = "gemini-2.5-flash-lite"
+        
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_NAME}:generateContent?key={settings.GEMINI_API_KEY}"
         
         payload = {
             "contents": [{
@@ -200,8 +203,9 @@ class GeminiProvider:
             async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(url, json=payload)
                 
-                if response.status_code == 400:
-                    raise HTTPException(status_code=500, detail="Invalid Gemini API key or request")
+                # specific error handling for debugging
+                if response.status_code == 404:
+                     raise HTTPException(status_code=500, detail=f"Model {MODEL_NAME} not found. Check API key.")
                 elif response.status_code == 429:
                     raise HTTPException(status_code=429, detail="Gemini rate limit exceeded")
                 elif response.status_code != 200:
@@ -212,21 +216,14 @@ class GeminiProvider:
                 
                 data = response.json()
                 
-                # Extract answer from Gemini response format
-                candidates = data.get("candidates", [])
-                if not candidates:
-                    raise HTTPException(status_code=500, detail="No response from Gemini")
+                # Extract answer safely
+                try:
+                    answer = data["candidates"][0]["content"]["parts"][0]["text"]
+                except (KeyError, IndexError):
+                    raise HTTPException(status_code=500, detail="Invalid response structure from Gemini")
                 
-                content = candidates[0].get("content", {})
-                parts = content.get("parts", [])
-                
-                if not parts:
-                    raise HTTPException(status_code=500, detail="Empty response from Gemini")
-                
-                answer = parts[0].get("text", "")
-                
-                # Estimate tokens (Gemini doesn't always return token count)
-                tokens = len(answer.split()) * 1.3  # Rough estimate
+                # Estimate tokens
+                tokens = len(answer.split()) * 1.3
                 
                 return {
                     "answer": answer.strip(),
@@ -237,7 +234,6 @@ class GeminiProvider:
             raise HTTPException(status_code=504, detail="Gemini request timeout")
         except httpx.RequestError as e:
             raise HTTPException(status_code=500, detail=f"Gemini network error: {str(e)}")
-
 
 class PerplexityProvider:
     """Perplexity AI API Integration"""
