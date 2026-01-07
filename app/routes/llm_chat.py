@@ -27,7 +27,7 @@ router = APIRouter(prefix="/api/llm", tags=["llm-chat"])
 
 class Settings:
     """LLM API Settings from environment variables"""
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+    OPENAI_API_KEY = ""
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
     PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY", "")
     
