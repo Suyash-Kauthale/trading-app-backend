@@ -21,6 +21,7 @@ from app.utils.market_utils import MarketDataManager
 from app.utils.trading_signals import TradingSignalGenerator
 from app.routes.api_ai import router as ai_router
 from app.routes.llm_chat import router as llm_router
+from fastapi.middleware.cors import CORSMiddleware
 
 # Initialize FastAPI app
 app = FastAPI(
