@@ -20,7 +20,7 @@ from app.auth import (
 from app.utils.market_utils import MarketDataManager
 from app.utils.trading_signals import TradingSignalGenerator
 from app.routes.api_ai import router as ai_router
-
+from app.routes.llm_chat import router as llm_router
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -38,6 +38,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(ai_router)
+app.include_router(llm_router)
 # Initialize database on startup
 @app.on_event("startup")
 async def startup_event():
