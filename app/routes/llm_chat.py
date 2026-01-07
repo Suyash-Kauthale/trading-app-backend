@@ -8,6 +8,8 @@ Endpoints:
 - POST /api/llm/chat - Chat with selected LLM provider
 """
 
+from fastapi.middleware.cors import CORSMiddleware  
+from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from typing import Literal, Dict
@@ -31,7 +33,7 @@ class Settings:
     
     # API Endpoints
     OPENAI_URL = "https://api.openai.com/v1/chat/completions"
-    GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
+    GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
     PERPLEXITY_URL = "https://api.perplexity.ai/chat/completions"
     
     # Rate limiting: max requests per user per minute
